@@ -27,42 +27,42 @@ See `CLAUDE.md` (Critical Code Rules section) for detailed patterns.
 This implementation plan outlines the development phases for FaithFlow.
 Each phase specifies which skills to load to minimize token usage.
 
-**Total Phases:** 7
+**Total Phases:** 9
 **Entities:** 3
 **Screens:** 6
 
 ---
 
-## Phase 1: Core Structure & Theme
+## Phase 1: Theme
 
 **Load these skills using the Skill tool:**
-- `Skill(skill="core-skill")`
 - `Skill(skill="theme-skill")`
 
-**Description:** Establish project foundation with proper architecture and theming
+**Description:** Create Material3 theme files from ui_design specifications
 
 **Tasks:**
-- [ ] Set up project structure following Compose Multiplatform patterns
-- [ ] Generate Material3 theme from ui_design specifications
-- [ ] Configure base typography and color schemes
-- [ ] Implement dark mode support
+- [ ] Create `ui/theme/Color.kt` with Material3 color definitions from ui_design
+- [ ] Create `ui/theme/Type.kt` with typography settings
+- [ ] Create `ui/theme/Theme.kt` with MaterialTheme composable
+- [ ] Add dark color scheme in Color.kt
+- [ ] Add `isSystemInDarkTheme()` toggle in Theme.kt
 
 ---
 
-## Phase 2: Dependency Injection
+## Phase 2: Domain Models
 
 **Load these skills using the Skill tool:**
-- `Skill(skill="koin-di-skill")`
+- `Skill(skill="data-skill")`
 
-**Description:** Set up Koin DI for clean architecture dependency management
+**Description:** Create domain model data classes
 
 **Tasks:**
-- [ ] Configure Koin modules for all layers (data, domain, presentation)
-- [ ] Create expect platformModule() in commonMain/di/AppModule.kt
-- [ ] Create actual platformModule() in androidMain and iosMain
-- [ ] Add allModules() helper that combines platformModule + other modules
-- [ ] For platform-specific deps: use Interface + platformModule injection (NOT expect object)
-- [ ] Define dependency scopes for ViewModels and repositories
+- [ ] **Create Domain Models in `domain/model/`:**
+- [ ]   - `Event.kt` with fields: id, title, date, category, location, ... (+6 more)
+- [ ]   - `NewsItem.kt` with fields: id, headline, publishDate, author, body, ... (+5 more)
+- [ ]   - `ChurchProfile.kt` with fields: name, logoURL, welcomeMessage, address, phone, ... (+5 more)
+- [ ] Use `kotlin.time.Instant` for timestamps (NOT kotlinx.datetime)
+- [ ] Make all models `data class` with sensible defaults
 
 ---
 
@@ -71,80 +71,242 @@ Each phase specifies which skills to load to minimize token usage.
 **Load these skills using the Skill tool:**
 - `Skill(skill="data-skill")`
 - `Skill(skill="gsheet-skill")`
+- `Skill(skill="database-skill")`
 
-**Description:** Implement data layer with repository pattern and backend integration
+**Description:** Create services, database, and repositories with state management
 
 **Tasks:**
-- [ ] Create domain models from data_models specifications
-- [ ] Implement repository pattern with STATE MANAGEMENT at repository level
-- [ ] Create GoogleSheetsService for URL resolution with GID discovery
-- [ ] Support both edit URLs and published URLs (pubhtml)
-- [ ] Map each entity to its tab name (Assignments, Exams, etc.)
-- [ ] Implement multi-format date parsing (yyyy-MM-dd, yyyy/MM/dd, dd/MM/yyyy)
-- [ ] Add CSV response validation (check for HTML error pages)
-- [ ] Handle missing tabs gracefully (return empty list, not crash)
-- [ ] Implement 3 entity model(s) with CRUD operations
+- [ ] **Create Google Sheets Service:**
+- [ ]   - `data/remote/GoogleSheetsService.kt` - CSV fetching with GID discovery
+- [ ]   - Support both edit URLs and published URLs (pubhtml)
+- [ ]   - Implement multi-format date parsing (yyyy-MM-dd, yyyy/MM/dd, dd/MM/yyyy)
+- [ ]   - Add CSV response validation (check for HTML error pages)
+- [ ]   - Handle missing tabs gracefully (return empty list, not crash)
+- [ ] **Create Room Database:**
+- [ ]   - `data/local/AppDatabase.kt` - Room @Database
+- [ ]   - `data/local/entity/EventEntity.kt` - Room @Entity
+- [ ]   - `data/local/dao/EventDao.kt` - Room @Dao with CRUD
+- [ ]   - `data/local/entity/NewsItemEntity.kt` - Room @Entity
+- [ ]   - `data/local/dao/NewsItemDao.kt` - Room @Dao with CRUD
+- [ ]   - `data/local/entity/ChurchProfileEntity.kt` - Room @Entity
+- [ ]   - `data/local/dao/ChurchProfileDao.kt` - Room @Dao with CRUD
+- [ ]   - Store timestamps as Long (not Instant) in entities
+- [ ] **Create Repositories (with STATE MANAGEMENT):**
+- [ ]   - `data/repository/ChurchProfileRepository.kt`
+- [ ]   - `data/repository/EventRepository.kt`
+- [ ]   - `data/repository/NewsItemRepository.kt`
+- [ ]   - Each repository holds `MutableStateFlow` for its data
+- [ ]   - Exposes `StateFlow` to ViewModels (read-only)
+- [ ]   - Implements offline-first: cache on fetch, serve from cache when offline
 
 ---
 
-## Phase 4: State Management
+## Phase 4: Use Cases
 
 **Load these skills using the Skill tool:**
-- `Skill(skill="state-management-skill")`
-- `Skill(skill="coroutine-flow-skill")`
+- `Skill(skill="data-skill")`
 
-**Description:** Implement shared state management at repository level
+**Description:** Create use case classes for business logic
 
 **Tasks:**
-- [ ] Implement repository-level state management for shared state
-- [ ] Set up StateFlow patterns for reactive UI
-- [ ] Configure flow collectors and state observers
+- [ ] **Create Use Cases in `domain/usecase/`:**
+- [ ]   - `GetUpcomingEventsUseCase.kt` (feature: Event Calendar)
+- [ ]   - `FilterEventsByCategoryUseCase.kt` (feature: Event Calendar)
+- [ ]   - `SearchEventsUseCase.kt` (feature: Event Calendar)
+- [ ]   - `GetLatestNewsUseCase.kt` (feature: News Feed)
+- [ ]   - `MarkNewsAsReadUseCase.kt` (feature: News Feed)
+- [ ]   - `LoadNewsByDateRangeUseCase.kt` (feature: News Feed)
+- [ ]   - `FetchEventLocationUseCase.kt` (feature: Event Details)
+- [ ]   - `GetEventDescriptionUseCase.kt` (feature: Event Details)
+- [ ]   - `OpenMapForLocationUseCase.kt` (feature: Event Details)
+- [ ]   - `ApplyCategoryFilterUseCase.kt` (feature: Category Filtering)
+- [ ]   - `SavePreferredCategoriesUseCase.kt` (feature: Category Filtering)
+- [ ]   - `ResetFiltersUseCase.kt` (feature: Category Filtering)
+- [ ]   - `SetGoogleSheetUrlUseCase.kt` (feature: Admin Configuration)
+- [ ]   - `TestSheetConnectionUseCase.kt` (feature: Admin Configuration)
+- [ ]   - `UpdateChurchProfileUseCase.kt` (feature: Admin Configuration)
+- [ ] Each UseCase: single `operator fun invoke()` or `suspend operator fun invoke()`
+- [ ] UseCase calls Repository, applies business logic, returns result
+- [ ] Keep UseCases focused - one responsibility each
 
 ---
 
-## Phase 5: Navigation & Screens
+## Phase 5: ViewModels
+
+**Load these skills using the Skill tool:**
+- `Skill(skill="feature-orchestration-skill")`
+- `Skill(skill="coroutine-flow-skill")`
+
+**Description:** Create THIN ViewModels that observe repository state
+
+**Tasks:**
+- [ ] **Create ViewModels in `presentation/viewmodel/`:**
+- [ ]   - `AdminConfigViewModel.kt` with `AdminConfigUiState` sealed interface
+- [ ]   - `ChurchProfileViewModel.kt` with `ChurchProfileUiState` sealed interface
+- [ ]   - `EventCalendarViewModel.kt` with `EventCalendarUiState` sealed interface
+- [ ]   - `EventCategoryFilterViewModel.kt` with `EventCategoryFilterUiState` sealed interface
+- [ ]   - `EventDetailViewModel.kt` with `EventDetailUiState` sealed interface
+- [ ]   - `NewsDetailViewModel.kt` with `NewsDetailUiState` sealed interface
+- [ ]   - `NewsFeedViewModel.kt` with `NewsFeedUiState` sealed interface
+- [ ]   - `OnboardingViewModel.kt` with `OnboardingUiState` sealed interface
+- [ ]   - `SettingsViewModel.kt` with `SettingsUiState` sealed interface
+- [ ] **UiState Pattern:**
+- [ ]   - `sealed interface XxxUiState { Loading, Success(data), Error(message) }`
+- [ ]   - ViewModel exposes `val uiState: StateFlow<XxxUiState>`
+- [ ] **THIN ViewModel Pattern:**
+- [ ]   - Observe repository StateFlow, transform to UiState
+- [ ]   - NO business logic in ViewModel - delegate to UseCases
+- [ ]   - Use `viewModelScope.launch` for coroutines
+
+---
+
+## Phase 6: Screens
 
 **Load these skills using the Skill tool:**
 - `Skill(skill="ui-skill")`
 
-**Description:** Implement navigation structure and screen composables
+**Description:** Create screen composables with proper state handling
 
 **Tasks:**
-- [ ] Set up type-safe navigation graph
-- [ ] Create screen composables per nav_screens specifications
-- [ ] Implement navigation transitions
-- [ ] For setup screens: check existing state in ViewModel init (bypass if data exists)
-- [ ] Build 6 screen(s) with Compose UI
+- [ ] **Create Screens in `presentation/screen/`:**
+- [ ]   - `AdminConfigScreen.kt` using `AdminConfigViewModel`
+- [ ]   - `ChurchProfileScreen.kt` using `ChurchProfileViewModel`
+- [ ]   - `EventCalendarScreen.kt` using `EventCalendarViewModel`
+- [ ]   - `EventCategoryFilterScreen.kt` using `EventCategoryFilterViewModel`
+- [ ]   - `EventDetailScreen.kt` using `EventDetailViewModel`
+- [ ]   - `NewsDetailScreen.kt` using `NewsDetailViewModel`
+- [ ]   - `NewsFeedScreen.kt` using `NewsFeedViewModel`
+- [ ]   - `OnboardingScreen.kt` using `OnboardingViewModel`
+- [ ]   - `SettingsScreen.kt` using `SettingsViewModel`
+- [ ] **Screen Pattern:**
+- [ ]   - `@Composable fun XxxScreen(viewModel: XxxViewModel = koinViewModel())`
+- [ ]   - Collect state: `val uiState by viewModel.uiState.collectAsState()`
+- [ ]   - Handle Loading/Success/Error states with `when(uiState)`
+- [ ]   - Use `koinViewModel()` as DEFAULT parameter (never pass null)
 
 ---
 
-## Phase 6: Feature Orchestration
+## Phase 7: Navigation
 
 **Load these skills using the Skill tool:**
-- `Skill(skill="feature-orchestration-skill")`
+- `Skill(skill="ui-skill")`
 
-**Description:** Implement ViewModels and use cases following MVI pattern
+**Description:** Set up type-safe navigation with @Serializable routes
 
 **Tasks:**
-- [ ] Implement THIN ViewModels that observe repository state
-- [ ] Create use cases for complex business logic
-- [ ] Connect UI → ViewModel → UseCase → Repository → Data flow
+- [ ] **Create Navigation in `navigation/`:**
+- [ ]   - `NavRoutes.kt` - @Serializable route classes (NOT string routes)
+- [ ]   - `NavigationHost.kt` - NavHost with composable<Route> entries
+- [ ]   - Start destination: `HomeScreen`
+- [ ] **Navigation Flows:**
+- [ ]   - HomeScreen -> NewsFeedScreen (tap 'Latest News')
+- [ ]   - HomeScreen -> EventCalendarScreen (tap 'Upcoming Events')
+- [ ]   - HomeScreen -> ChurchProfileScreen (tap 'About Us')
+- [ ]   - ChurchProfileScreen -> SetupScreen (tap 'Update Sheet')
+- [ ]   - SetupScreen -> HomeScreen (after successful sheet load)
+- [ ]   - ... (+1 more flows)
+- [ ] **Type-Safe Navigation:**
+- [ ]   - `@Serializable object Home` for simple routes
+- [ ]   - `@Serializable data class Detail(val id: String)` for parameterized routes
+- [ ]   - Navigate: `navController.navigate(Detail(id = "123"))`
+- [ ] For setup screens: check existing state in ViewModel init (skip if data exists)
 
 ---
 
-## Phase 7: Validation & Polish
+## Phase 8: Dependency Injection
+
+**Load these skills using the Skill tool:**
+- `Skill(skill="koin-di-skill")`
+
+**Description:** Register all classes in Koin (now that they all exist)
+
+**Tasks:**
+- [ ] **Create Koin Modules in `di/`:**
+- [ ]   - `AppModule.kt` - main module with all registrations
+- [ ]   - `expect fun platformModule(): Module` in commonMain
+- [ ]   - `actual fun platformModule(): Module` in androidMain/iosMain
+- [ ] 
+- [ ] **Register ALL classes created in previous phases:**
+- [ ] *Repositories:*
+- [ ]   - `singleOf(::ChurchProfileRepository)`
+- [ ]   - `singleOf(::EventRepository)`
+- [ ]   - `singleOf(::NewsItemRepository)`
+- [ ] *UseCases:*
+- [ ]   - `factoryOf(::GetUpcomingEventsUseCase)`
+- [ ]   - `factoryOf(::FilterEventsByCategoryUseCase)`
+- [ ]   - `factoryOf(::SearchEventsUseCase)`
+- [ ]   - `factoryOf(::GetLatestNewsUseCase)`
+- [ ]   - `factoryOf(::MarkNewsAsReadUseCase)`
+- [ ]   - `factoryOf(::LoadNewsByDateRangeUseCase)`
+- [ ]   - `factoryOf(::FetchEventLocationUseCase)`
+- [ ]   - `factoryOf(::GetEventDescriptionUseCase)`
+- [ ]   - `factoryOf(::OpenMapForLocationUseCase)`
+- [ ]   - `factoryOf(::ApplyCategoryFilterUseCase)`
+- [ ]   - `factoryOf(::SavePreferredCategoriesUseCase)`
+- [ ]   - `factoryOf(::ResetFiltersUseCase)`
+- [ ]   - `factoryOf(::SetGoogleSheetUrlUseCase)`
+- [ ]   - `factoryOf(::TestSheetConnectionUseCase)`
+- [ ]   - `factoryOf(::UpdateChurchProfileUseCase)`
+- [ ] *ViewModels:*
+- [ ]   - `viewModelOf(::AdminConfigViewModel)`
+- [ ]   - `viewModelOf(::ChurchProfileViewModel)`
+- [ ]   - `viewModelOf(::EventCalendarViewModel)`
+- [ ]   - `viewModelOf(::EventCategoryFilterViewModel)`
+- [ ]   - `viewModelOf(::EventDetailViewModel)`
+- [ ]   - `viewModelOf(::NewsDetailViewModel)`
+- [ ]   - `viewModelOf(::NewsFeedViewModel)`
+- [ ]   - `viewModelOf(::OnboardingViewModel)`
+- [ ]   - `viewModelOf(::SettingsViewModel)`
+- [ ] 
+- [ ] **Platform-Specific Dependencies:**
+- [ ]   - Use Interface + platformModule injection (NOT expect object)
+- [ ]   - Example: `interface DateFormatter` → `AndroidDateFormatter` / `IosDateFormatter`
+
+---
+
+## Phase 9: Review & Fix
 
 **Load these skills using the Skill tool:**
 - `Skill(skill="validation-skill")`
 
-**Description:** Final validation, error fixing, and polish
+**Description:** Review all phases and fix potential issues before GitHub Actions build
 
 **Tasks:**
-- [ ] Run build validation
-- [ ] Fix any compilation errors
-- [ ] Verify all features work correctly
-- [ ] Ensure proper error handling throughout
-- [ ] Update README.md with actual app info (replace template placeholders with app name, description, features, backend type, and setup instructions from project-context.json)
+- [ ] **Review Each Phase for Common Issues:**
+- [ ] 
+- [ ] *Theme:*
+- [ ]   - Colors match ui_design specifications
+- [ ]   - Dark mode properly toggles if enabled
+- [ ] 
+- [ ] *Domain Models:*
+- [ ]   - Using `kotlin.time.Instant` (NOT kotlinx.datetime)
+- [ ]   - All fields have sensible defaults
+- [ ] 
+- [ ] *Data Layer:*
+- [ ]   - Repositories hold StateFlow (state management)
+- [ ]   - Timestamps stored as Long in Room entities
+- [ ]   - Error handling returns empty list, not crash
+- [ ] 
+- [ ] *ViewModels:*
+- [ ]   - THIN pattern - observe repository, no business logic
+- [ ]   - UiState sealed interface with Loading/Success/Error
+- [ ] 
+- [ ] *Screens:*
+- [ ]   - `koinViewModel()` as default parameter
+- [ ]   - Handles all UiState branches
+- [ ] 
+- [ ] *Navigation:*
+- [ ]   - @Serializable route classes (not strings)
+- [ ]   - Icons use `Icons.AutoMirrored.Filled` for arrows/lists
+- [ ] 
+- [ ] *DI:*
+- [ ]   - ALL ViewModels registered with `viewModelOf()`
+- [ ]   - ALL Repositories registered with `singleOf()`
+- [ ] 
+- [ ] **Final Tasks:**
+- [ ]   - Update README.md with app name, description, features from project-context.json
+- [ ]   - Remove any placeholder comments
+- [ ]   - Ensure no empty folders remain
 
 ---
 
