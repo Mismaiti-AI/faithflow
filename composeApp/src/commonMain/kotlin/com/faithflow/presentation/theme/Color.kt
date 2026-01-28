@@ -1,18 +1,17 @@
-package com.faithflow
+package com.faithflow.presentation.theme
 
 import androidx.compose.ui.graphics.Color
 
 // FaithFlow color palette - Elegant theme
-// Primary: #4A235A (Deep Purple), Secondary: #FFFFF0 (Ivory), Accent: #333333 (Dark Gray)
+// Primary: #4A235A (Deep Purple), Secondary: #FF9800 (Warm Orange), Ivory: #FFFFF0
 
-val Seed = Color(0xFF4A235A)
-
-val PrimaryLight = Color(0xFF4A235A) // Deep Purple (from ui_design)
+// Light Theme Colors
+val PrimaryLight = Color(0xFF4A235A) // Deep Purple
 val OnPrimaryLight = Color(0xFFFFFFFF) // White
 val PrimaryContainerLight = Color(0xFF6B3B7A) // Lighter Purple
 val OnPrimaryContainerLight = Color(0xFFFFFFFF) // White
 
-val SecondaryLight = Color(0xFFFF9800) // Warm Orange (complementary)
+val SecondaryLight = Color(0xFFFF9800) // Warm Orange
 val OnSecondaryLight = Color(0xFF333333) // Dark Gray
 val SecondaryContainerLight = Color(0xFFFFE0B2) // Light Orange
 val OnSecondaryContainerLight = Color(0xFF333333) // Dark Gray
@@ -27,8 +26,8 @@ val OnErrorLight = Color(0xFFFFFFFF) // White
 val ErrorContainerLight = Color(0xFFFFCDD2) // Light Red
 val OnErrorContainerLight = Color(0xFF5F2120) // Dark Red
 
-val BackgroundLight = Color(0xFFFFFFF0) // Ivory (from ui_design)
-val OnBackgroundLight = Color(0xFF333333) // Dark Gray (from ui_design)
+val BackgroundLight = Color(0xFFFFFFF0) // Ivory
+val OnBackgroundLight = Color(0xFF333333) // Dark Gray
 
 val SurfaceLight = Color(0xFFFFFFFF) // Pure White for cards
 val OnSurfaceLight = Color(0xFF333333) // Dark Gray
@@ -38,54 +37,36 @@ val OnSurfaceVariantLight = Color(0xFF5E5E5E) // Medium Gray
 
 val OutlineLight = Color(0xFFBDBDBD) // Gray outline
 val OutlineVariantLight = Color(0xFFE0E0E0) // Light Gray
-val ScrimLight = Color(0xFF000000) // Black
 
-val InverseSurfaceLight = Color(0xFF333333) // Dark Gray
-val InverseOnSurfaceLight = Color(0xFFFFFFF0) // Ivory
-
-val InversePrimaryLight = Color(0xFFB39DDB) // Light Purple
-val SurfaceDimLight = Color(0xFFF5F5F5) // Dim surface
-val SurfaceBrightLight = Color(0xFFFFFFFF) // Bright surface
-
-val SurfaceContainerLowestLight = Color(0xFFFFFFFF) // White
-val SurfaceContainerLowLight = Color(0xFFFAFAFA) // Very Light Gray
-val SurfaceContainerLight = Color(0xFFF5F5F5) // Light Gray
-val SurfaceContainerHighLight = Color(0xFFEEEEEE) // Medium Light Gray
-val SurfaceContainerHighestLight = Color(0xFFE0E0E0) // Gray
-
-
-val PrimaryDark = Color(0xFFB39DDB) // Light Purple for dark mode
+// Dark Theme Colors
+val PrimaryDark = Color(0xFFB39DDB) // Light Purple
 val OnPrimaryDark = Color(0xFF1A0A26) // Very Dark Purple
 val PrimaryContainerDark = Color(0xFF6B3B7A) // Medium Purple
 val OnPrimaryContainerDark = Color(0xFFE1BEE7) // Light Lavender
+
 val SecondaryDark = Color(0xFFFFB74D) // Light Orange
 val OnSecondaryDark = Color(0xFF1A1A1A) // Almost Black
 val SecondaryContainerDark = Color(0xFFFF9800) // Orange
 val OnSecondaryContainerDark = Color(0xFFFFE0B2) // Very Light Orange
+
 val TertiaryDark = Color(0xFFCE93D8) // Light Purple variant
 val OnTertiaryDark = Color(0xFF1A0A26) // Very Dark Purple
 val TertiaryContainerDark = Color(0xFF6B3B7A) // Medium Purple
 val OnTertiaryContainerDark = Color(0xFFF3E5F5) // Very Light Lavender
+
 val ErrorDark = Color(0xFFEF5350) // Light Red
 val OnErrorDark = Color(0xFF1A0000) // Very Dark Red
 val ErrorContainerDark = Color(0xFFD32F2F) // Red
 val OnErrorContainerDark = Color(0xFFFFCDD2) // Light Red
+
 val BackgroundDark = Color(0xFF121212) // Dark background
 val OnBackgroundDark = Color(0xFFE0E0E0) // Light Gray
+
 val SurfaceDark = Color(0xFF1E1E1E) // Dark surface
 val OnSurfaceDark = Color(0xFFE0E0E0) // Light Gray
+
 val SurfaceVariantDark = Color(0xFF2C2C2C) // Dark Gray variant
 val OnSurfaceVariantDark = Color(0xFFBDBDBD) // Light Gray
+
 val OutlineDark = Color(0xFF616161) // Medium Gray
 val OutlineVariantDark = Color(0xFF424242) // Dark Gray
-val ScrimDark = Color(0xFF000000) // Black
-val InverseSurfaceDark = Color(0xFFE0E0E0) // Light Gray
-val InverseOnSurfaceDark = Color(0xFF121212) // Dark
-val InversePrimaryDark = Color(0xFF4A235A) // Deep Purple
-val SurfaceDimDark = Color(0xFF121212) // Dim dark
-val SurfaceBrightDark = Color(0xFF2C2C2C) // Bright dark
-val SurfaceContainerLowestDark = Color(0xFF0A0A0A) // Darkest
-val SurfaceContainerLowDark = Color(0xFF1E1E1E) // Very Dark
-val SurfaceContainerDark = Color(0xFF242424) // Dark
-val SurfaceContainerHighDark = Color(0xFF2C2C2C) // Medium Dark
-val SurfaceContainerHighestDark = Color(0xFF373737) // Light Dark

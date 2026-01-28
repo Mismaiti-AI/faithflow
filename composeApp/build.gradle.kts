@@ -100,6 +100,10 @@ kotlin {
             // Koin core DI
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
+
+            // Multiplatform Settings
+            implementation(libs.multiplatform.settings)
+            implementation(libs.multiplatform.settings.no.arg)
         }
 
         // Mobile-only dependencies (Android + iOS) - NOT wasmJs
