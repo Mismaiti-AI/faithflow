@@ -38,14 +38,16 @@ Each phase specifies which skills to load to minimize token usage.
 **Load these skills using the Skill tool:**
 - `Skill(skill="theme-skill")`
 
-**Description:** Create Material3 theme files from ui_design specifications
+**Description:** Update existing theme files with ui_design colors
 
 **Tasks:**
-- [ ] Create `ui/theme/Color.kt` with Material3 color definitions from ui_design
-- [ ] Create `ui/theme/Type.kt` with typography settings
-- [ ] Create `ui/theme/Theme.kt` with MaterialTheme composable
-- [ ] Add dark color scheme in Color.kt
-- [ ] Add `isSystemInDarkTheme()` toggle in Theme.kt
+- [ ] **Update existing theme files (already in template):**
+- [ ]   - `AppColors.kt` - Update color values from ui_design
+- [ ]   - `AppTheme.kt` - Update MaterialTheme with new colors
+- [ ]   - `AppTheme.android.kt` - Platform-specific (already exists)
+- [ ]   - `AppTheme.ios.kt` - Platform-specific (already exists)
+- [ ] Apply colors from project-context.json ui_design section
+- [ ] Ensure dark color scheme is properly configured
 
 ---
 
