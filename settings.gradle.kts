@@ -1,4 +1,4 @@
-rootProject.name = "Mismaiti-Template"
+rootProject.name = "FaithFlow"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {

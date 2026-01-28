@@ -1,4 +1,4 @@
-package com.mismaiti
+package com.faithflow
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
