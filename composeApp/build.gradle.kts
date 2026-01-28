@@ -100,10 +100,6 @@ kotlin {
             // Koin core DI
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
-
-            // Multiplatform Settings
-            implementation(libs.multiplatform.settings)
-            implementation(libs.multiplatform.settings.no.arg)
         }
 
         // Mobile-only dependencies (Android + iOS) - NOT wasmJs
@@ -129,6 +125,10 @@ kotlin {
             // Room database
             implementation(libs.androidx.room.runtime)
             implementation(libs.androidx.sqlite.bundled)
+
+            // Multiplatform Settings - not supported on wasmJs
+            implementation(libs.multiplatform.settings)
+            implementation(libs.multiplatform.settings.no.arg)
         }
 
         commonTest.dependencies {
