@@ -1,0 +1,114 @@
+name: Build WASM Preview
+
+on:
+  workflow_call:
+    inputs:
+      session_id:
+        description: 'Session ID for preview URL'
+        required: false
+        type: string
+    outputs:
+      preview_url:
+        description: 'Cloudflare Pages preview URL'
+        value: ${{ jobs.build.outputs.preview_url }}
+      build_success:
+        description: 'Whether WASM build and deploy succeeded'
+        value: ${{ jobs.build.outputs.build_success }}
+    secrets:
+      CLOUDFLARE_API_TOKEN:
+        required: true
+      CLOUDFLARE_ACCOUNT_ID:
+        required: true
+
+jobs:
+  build:
+    name: WASM Preview Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs:
+      preview_url: ${{ steps.deploy.outputs.url }}
+      build_success: ${{ steps.build.outputs.success }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Cache Gradle packages
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-wasm-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-wasm-
+            ${{ runner.os }}-gradle-
+
+      - name: Build WASM
+        id: build
+        run: |
+          echo "🌐 Building WASM preview..."
+          ./gradlew wasmJsDevelopmentExecutable --no-daemon --stacktrace
+
+          if [ -d "composeApp/build/dist/wasmJs/developmentExecutable" ]; then
+            echo "success=true" >> $GITHUB_OUTPUT
+            echo "✅ WASM build successful"
+
+            # List output files
+            echo "📦 WASM output files:"
+            ls -la composeApp/build/dist/wasmJs/developmentExecutable/
+          else
+            echo "success=false" >> $GITHUB_OUTPUT
+            echo "❌ WASM build failed - output directory not found"
+            exit 1
+          fi
+
+      - name: Deploy to Cloudflare Pages
+        id: deploy
+        if: steps.build.outputs.success == 'true'
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: mismaiti-previews
+          directory: composeApp/build/dist/wasmJs/developmentExecutable
+          branch: preview-${{ inputs.session_id || github.sha }}
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Output preview URL
+        if: steps.deploy.outputs.url != ''
+        run: |
+          echo "🔗 Preview URL: ${{ steps.deploy.outputs.url }}"
+          echo "PREVIEW_URL=${{ steps.deploy.outputs.url }}" >> $GITHUB_ENV
+
+      - name: Build summary
+        if: always()
+        run: |
+          echo "## 🌐 WASM Preview Build" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ steps.build.outputs.success }}" = "true" ]; then
+            echo "✅ **Build Status:** Success" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Build Status:** Failed" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ -n "${{ steps.deploy.outputs.url }}" ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "🔗 **Preview URL:** ${{ steps.deploy.outputs.url }}" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ -n "${{ inputs.session_id }}" ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "📋 **Session ID:** ${{ inputs.session_id }}" >> $GITHUB_STEP_SUMMARY
+          fi
